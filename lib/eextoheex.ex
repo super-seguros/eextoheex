@@ -496,7 +496,7 @@ defmodule EexToHeex do
 
     close = scan_to_char(str, ">", 1, expr_end)
 
-    [{open, expr_start, "{\"\#{"}, {expr_start, expr_end, expr}, {expr_end, close + 1, "}\"}"}]
+    [{open, expr_start, "{"}, {expr_start, expr_end, expr}, {expr_end, close + 1, "}"}]
   end
 
   defp attr_replacements(str, quoted, subs = [_ | _]) do
@@ -508,11 +508,12 @@ defmodule EexToHeex do
       expr = to_string(expr)
       expr_start = get_index(str, l, c)
       expr_end = expr_start + String.length(expr)
+      short_form = subs_len == 1 and prefix =~ ~r/^\s*$/ and suffix =~ ~r/^\s*$/
 
       opener =
         if i == 0 do
           open = scan_to_char(str, quoted, -1, expr_start)
-          {open, expr_start, "{\""}
+          {open, expr_start, if(short_form, do: "{", else: "{\"")}
         else
           open = scan_to_char(str, "<", -1, expr_start)
           {open, expr_start, ""}
@@ -521,14 +522,21 @@ defmodule EexToHeex do
       closer =
         if i == subs_len - 1 do
           close = scan_to_char(str, quoted, 1, expr_end)
-          {expr_end, close + 1, "\"}"}
+          {expr_end, close + 1, if(short_form, do: "}", else: "\"}")}
         else
           close = scan_to_char(str, ">", 1, expr_end)
           {expr_end, close + 1 + String.length(suffix), ""}
         end
 
+      expr =
+        if short_form do
+          expr
+        else
+          "#{estring(prefix)}\#{#{expr}}#{estring(suffix)}"
+        end
+
       [opener] ++
-        [{expr_start, expr_end, "#{estring(prefix)}\#{#{expr}}#{estring(suffix)}"}] ++
+        [{expr_start, expr_end, expr}] ++
         [closer]
     end)
   end

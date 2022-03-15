@@ -1,3 +1,5 @@
+This is a fork that uses the shortform for attributes whenever possible (see ~~strikethrough~~ text)
+
 # Eextoheex
 
 Eextoheex provides best effort conversion of `html.eex` templates to `.heex`
@@ -12,9 +14,9 @@ manual conversion.
 
 | Eex                                                                  | Heex                                                         |
 | -------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `<p class=<%= expr %>>`                                              | `<p class={"#{ expr }"}`>                                    |
-| `<p class="<%= expr %>">`                                            | `<p class={"#{ expr }"}`>                                    |
-| `<p class='<%= expr %>'>`                                            | `<p class={"#{ expr }"}`>                                    |
+| `<p class=<%= expr %>>`                                              | ~~`<p class={"#{ expr }"}>`~~ `<p class={ expr }>`           |
+| `<p class="<%= expr %>">`                                            | ~~`<p class={"#{ expr }"}>`~~ `<p class={ expr }>`           |
+| `<p class='<%= expr %>'>`                                            | ~~`<p class={"#{ expr }"}>`~~ `<p class={ expr }>`           |
 | `<p class="foo <%= expr1 %> bar <%= expr2 %> amp <%= expr3 %> fuzz"` | `<p class={"foo #{expr1} bar #{expr2} amp #{expr3} fuzz }"}` |
 
 ### Limitations of attribute conversion
@@ -22,10 +24,21 @@ manual conversion.
 The attribute name must be present as a literal. For example, attributes such as
 `<p <%= if @foo do "class='foo'" else "" end %>>` cannot be translated.
 
-It is unfortunately not possible to translate attributes like `class="<%= @foo %>"` simply to `class={ @foo }`.
+~~It is unfortunately not possible to translate attributes like `class="<%= @foo %>"` simply to `class={ @foo }`.
 This gives the wrong result when `@foo` is not a string. For example, if `foo` is `false`, then Eex outputs
 `class="false"`, whereas Heex simply omits the `class` attribute altogether.
-Thus, `class="<%= @foo %>"` has to be translated to `class={"#{ @foo }"}`.
+Thus, `class="<%= @foo %>"` has to be translated to `class={"#{ @foo }"}`.~~
+
+We translate attributes like `class="<%= @foo %>"` to `class={ @foo }`.
+This gives a different result when `@foo` is `true`, `false` or `nil`:
+
+```
+<div attr="true"> vs <div attr="">
+<div attr="false"> vs <div>
+<div attr=""> vs <div>
+```
+
+While incompatible, the previous output is non-sensical in just about every possible scenario.
 
 ## Live view forms
 
