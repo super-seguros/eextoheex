@@ -10,12 +10,12 @@ manual conversion.
 
 ### Examples of autoconvertible attributes
 
-Eex                                                                  | Heex
----------------------------------------------------------------------|-------------------------------------------------------------
-`<p class=<%= expr %>>`                                              | `<p class={"#{ expr }"}`>
-`<p class="<%= expr %>">`                                            | `<p class={"#{ expr }"}`>
-`<p class='<%= expr %>'>`                                            | `<p class={"#{ expr }"}`>
-`<p class="foo <%= expr1 %> bar <%= expr2 %> amp <%= expr3 %> fuzz"` | `<p class={"foo #{expr1} bar #{expr2} amp #{expr3} fuzz }"}`
+| Eex                                                                  | Heex                                                         |
+| -------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `<p class=<%= expr %>>`                                              | `<p class={"#{ expr }"}`>                                    |
+| `<p class="<%= expr %>">`                                            | `<p class={"#{ expr }"}`>                                    |
+| `<p class='<%= expr %>'>`                                            | `<p class={"#{ expr }"}`>                                    |
+| `<p class="foo <%= expr1 %> bar <%= expr2 %> amp <%= expr3 %> fuzz"` | `<p class={"foo #{expr1} bar #{expr2} amp #{expr3} fuzz }"}` |
 
 ### Limitations of attribute conversion
 
@@ -49,9 +49,9 @@ it is converted to
 
 The generated `heex` template may be invalid, either because:
 
-* the input template is not a suitable candidate for autoconversion; or
+- the input template is not a suitable candidate for autoconversion; or
 
-* the input template contains invalid HTML (e.g. a missing closing tag).
+- the input template contains invalid HTML (e.g. a missing closing tag).
 
 Eextoheex always runs the output template through the `heex` parser, and will
 report an error in the case where it is invalid.
